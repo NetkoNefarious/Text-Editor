@@ -23,16 +23,11 @@ namespace Text_Editor
     public partial class MainWindow : Window
     {
         bool hasTextChanged = false;
+        string fileName = "";
 
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        private void MenuNew_Click(object sender, RoutedEventArgs e)
-        {
-            CloseWithoutSaving_Prompt();
-            this.Title = "Text editor - Untitled.txt";
         }
 
         private void CloseWithoutSaving_Prompt()
@@ -56,6 +51,13 @@ namespace Text_Editor
             hasTextChanged = false;
         }
 
+        private void MenuNew_Click(object sender, RoutedEventArgs e)
+        {
+            CloseWithoutSaving_Prompt();
+            this.Title = "Text editor";
+            fileName = "";
+        }
+
         private void MenuOpen_Click(object sender, RoutedEventArgs e)
         {
             CloseWithoutSaving_Prompt();
@@ -71,18 +73,27 @@ namespace Text_Editor
             {
                 txtBoxDoc.Text = File.ReadAllText(openDlg.FileName);
             }
+
+            fileName = openDlg.FileName;
+            this.Title = "Text editor - " + fileName.Substring(fileName.LastIndexOf('\\') + 1);
         }
 
         private void MenuSave_Click(object sender, RoutedEventArgs e)
         {
-            string fileName = SaveFile();
+            SaveFile();
             hasTextChanged = false;
 
             this.Title = "Text editor - " + fileName.Substring(fileName.LastIndexOf('\\') + 1);
         }
 
-        private string SaveFile()
+        private void SaveFile()
         {
+            if (File.Exists(fileName))
+            {
+                File.WriteAllText(fileName, txtBoxDoc.Text);
+                return;
+            }
+
             SaveFileDialog saveDlg = new SaveFileDialog
             {
                 // Postavke dijaloga
@@ -96,7 +107,7 @@ namespace Text_Editor
                 File.WriteAllText(saveDlg.FileName, txtBoxDoc.Text);
             }
 
-            return saveDlg.FileName;
+            fileName = saveDlg.FileName;
         }
 
         private void TxtBoxDoc_TextChanged(object sender, TextChangedEventArgs e)
@@ -107,6 +118,21 @@ namespace Text_Editor
         private void MenuExit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void MenuAbout_KeyUp(object sender, KeyEventArgs e)
+        {
+            OpenAboutWindow();
+        }
+        private void MenuAbout_Click(object sender, RoutedEventArgs e)
+        {
+            OpenAboutWindow();
+        }
+
+        private static void OpenAboutWindow()
+        {
+            AboutWindow aboutWindow = new AboutWindow();
+            aboutWindow.Show();
         }
     }
 }
