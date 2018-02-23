@@ -19,6 +19,7 @@
                 <MenuItem x:Name="menuSave" Header="_Save" InputGestureText="Ctrl+S"
                           Click="MenuSave_Click">
                 </MenuItem>
+                <MenuItem x:Name="menuSaveAs" Header="Save as" Click="MenuSaveAs_Click"/>
                 <MenuItem x:Name="menuExit" Header="Exit" InputGestureText="Alt+F4"
                           Click="MenuExit_Click">
                 </MenuItem>
@@ -50,7 +51,7 @@
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem x:Name="menuAbout" Header="About" InputGestureText="F1"
-                          KeyUp="MenuAbout_KeyUp" Click="MenuAbout_Click">
+                          Click="MenuAbout_Click">
                 </MenuItem>
             </MenuItem>
         </Menu>
@@ -67,7 +68,9 @@
                     <Image Source="./Resources/Save.png"/>
                 </Button>
                 <Label Content="Font size:"/>
-                <ComboBox Width="50">
+                <ComboBox x:Name="comboFontSize" Width="50" IsEditable="True"
+                          DropDownClosed="ComboFontSize_DropDownClosed" KeyUp="ComboFontSize_KeyUp"
+                          Text="14">
                     <ComboBoxItem Content="10"/>
                     <ComboBoxItem Content="12"/>
                     <ComboBoxItem Content="14"/>

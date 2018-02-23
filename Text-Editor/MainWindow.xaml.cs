@@ -28,6 +28,7 @@ namespace Text_Editor
         public MainWindow()
         {
             InitializeComponent();
+            txtBoxDoc.FontSize = 14;
         }
 
         private void CloseWithoutSaving_Prompt()
@@ -66,7 +67,11 @@ namespace Text_Editor
             {
                 // Postavke dijaloga
                 Filter = "Text file (*.txt)|*.txt|All files|", // Da filtrira tipove podataka
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) // Postavimo početni folder
+
+                // Pocetni direktorij
+                InitialDirectory = File.Exists(fileName) ?
+                    fileName.Remove(fileName.LastIndexOf('\\')) :
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
             };
 
             if (openDlg.ShowDialog() == true)
@@ -86,21 +91,23 @@ namespace Text_Editor
             this.Title = "Text editor - " + fileName.Substring(fileName.LastIndexOf('\\') + 1);
         }
 
-        private void SaveFile()
+        private void MenuSaveAs_Click(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(fileName))
+            SaveFile(true);
+            hasTextChanged = false;
+
+            this.Title = "Text editor - " + fileName.Substring(fileName.LastIndexOf('\\') + 1);
+        }
+
+        private void SaveFile(bool saveAs = false)
+        {
+            if (File.Exists(fileName) && !saveAs)
             {
                 File.WriteAllText(fileName, txtBoxDoc.Text);
                 return;
             }
 
-            SaveFileDialog saveDlg = new SaveFileDialog
-            {
-                // Postavke dijaloga
-                Filter = "Text file (*.txt)|*.txt|All files|", // Da filtrira tipove podataka
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop), // Postavimo početni folder
-                DefaultExt = "txt" // Postavimo ovo ako je All Files i nema ekstenzije napisane
-            };
+            SaveFileDialog saveDlg = ReturnSaveDialog();
 
             if (saveDlg.ShowDialog() == true)
             {
@@ -108,6 +115,26 @@ namespace Text_Editor
             }
 
             fileName = saveDlg.FileName;
+        }
+
+        private SaveFileDialog ReturnSaveDialog()
+        {
+            SaveFileDialog saveDlg = new SaveFileDialog
+            {
+                // Postavke dijaloga
+                Filter = "Text file (*.txt)|*.txt|All files|", // Da filtrira tipove podataka
+
+                // Postavimo početni folder (prvi slučaj za Save As, drugi za ostalo)
+                InitialDirectory = File.Exists(fileName) ?
+                    fileName.Remove(fileName.LastIndexOf('\\')) :
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+
+                // Postavimo ovo ako je All Files i nema ekstenzije napisane
+                DefaultExt = "txt",
+                AddExtension = true,
+                FileName = fileName.LastIndexOf('\\') != -1 ? fileName.Substring(fileName.LastIndexOf('\\') + 1) : fileName
+            };
+            return saveDlg;
         }
 
         private void TxtBoxDoc_TextChanged(object sender, TextChangedEventArgs e)
@@ -120,10 +147,6 @@ namespace Text_Editor
             this.Close();
         }
 
-        private void MenuAbout_KeyUp(object sender, KeyEventArgs e)
-        {
-            OpenAboutWindow();
-        }
         private void MenuAbout_Click(object sender, RoutedEventArgs e)
         {
             OpenAboutWindow();
@@ -133,6 +156,31 @@ namespace Text_Editor
         {
             AboutWindow aboutWindow = new AboutWindow();
             aboutWindow.Show();
+        }
+
+        private void ComboFontSize_DropDownClosed(object sender, EventArgs e)
+        {
+            ChangeFontSize();
+        }
+
+        private void ComboFontSize_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                ChangeFontSize();
+        }
+
+        private void ChangeFontSize()
+        {
+            if (comboFontSize.Text != null)
+            {
+                try
+                {
+                    txtBoxDoc.FontSize = double.Parse(comboFontSize.Text);
+                }
+
+                catch (Exception)
+                { }
+            }
         }
     }
 }
