@@ -13,4 +13,4 @@ What I practiced with this:
 * Containers (menu, toolbars, comboBoxes...)
 * NuGet
 * ApplicationCommands and Default Windows locations
-* And much more.
+* XAML and C# in general
