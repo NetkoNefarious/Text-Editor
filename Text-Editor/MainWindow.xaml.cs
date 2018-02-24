@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 
 namespace Text_Editor
 {
@@ -28,7 +31,7 @@ namespace Text_Editor
         public MainWindow()
         {
             InitializeComponent();
-            txtBoxDoc.FontSize = 14;
+            TxtBoxDoc.FontSize = 14;
         }
 
         private void CloseWithoutSaving_Prompt()
@@ -48,7 +51,7 @@ namespace Text_Editor
                 }
             }
 
-            txtBoxDoc.Clear();
+            TxtBoxDoc.Clear();
             hasTextChanged = false;
         }
 
@@ -76,7 +79,7 @@ namespace Text_Editor
 
             if (openDlg.ShowDialog() == true)
             {
-                txtBoxDoc.Text = File.ReadAllText(openDlg.FileName);
+                TxtBoxDoc.Text = File.ReadAllText(openDlg.FileName);
             }
 
             fileName = openDlg.FileName;
@@ -103,7 +106,7 @@ namespace Text_Editor
         {
             if (File.Exists(fileName) && !saveAs)
             {
-                File.WriteAllText(fileName, txtBoxDoc.Text);
+                File.WriteAllText(fileName, TxtBoxDoc.Text);
                 return;
             }
 
@@ -111,7 +114,7 @@ namespace Text_Editor
 
             if (saveDlg.ShowDialog() == true)
             {
-                File.WriteAllText(saveDlg.FileName, txtBoxDoc.Text);
+                File.WriteAllText(saveDlg.FileName, TxtBoxDoc.Text);
             }
 
             fileName = saveDlg.FileName;
@@ -137,9 +140,11 @@ namespace Text_Editor
             return saveDlg;
         }
 
-        private void TxtBoxDoc_TextChanged(object sender, TextChangedEventArgs e)
+        private void TxtBoxDoc_TextChanged(object sender, EventArgs e)
         {
             hasTextChanged = true;
+            if (this.Title[this.Title.Length - 1] != '*')
+                this.Title += '*';
         }
 
         private void MenuExit_Click(object sender, RoutedEventArgs e)
@@ -175,12 +180,31 @@ namespace Text_Editor
             {
                 try
                 {
-                    txtBoxDoc.FontSize = double.Parse(comboFontSize.Text);
+                    TxtBoxDoc.FontSize = double.Parse(comboFontSize.Text);
                 }
 
                 catch (Exception)
                 { }
             }
+        }
+
+        private void SyntaxComboBox_OnDropDownClosed(object sender, EventArgs e)
+        {
+            ComboBox comboBox = sender as ComboBox;
+            ChangeSyntax(comboBox.Text);
+        }
+
+        private void ChangeSyntax(string syntax)
+        {
+            var typeConverter = new HighlightingDefinitionTypeConverter();
+            var syntaxHighlighter = (IHighlightingDefinition)typeConverter.ConvertFrom(syntax);
+            TxtBoxDoc.SyntaxHighlighting = syntaxHighlighter;
+        }
+
+        private void MenuLineNumbers_OnClick(object sender, RoutedEventArgs e)
+        {
+            TxtBoxDoc.ShowLineNumbers = !TxtBoxDoc.ShowLineNumbers;
+            menuLineNumbers.IsChecked = TxtBoxDoc.ShowLineNumbers;
         }
     }
 }

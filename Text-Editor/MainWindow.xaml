@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Text_Editor"
+        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
         Title="Text editor" Height="350" Width="525">
 
@@ -49,6 +50,11 @@
                           Command="ApplicationCommands.Paste">
                 </MenuItem>
             </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem x:Name="menuLineNumbers" Header="Show Line Numbers"
+                          Click="MenuLineNumbers_OnClick" IsChecked="True">
+                </MenuItem>
+            </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem x:Name="menuAbout" Header="About" InputGestureText="F1"
                           Click="MenuAbout_Click">
@@ -67,6 +73,7 @@
                 <Button ToolTip="Save" Click="MenuSave_Click">
                     <Image Source="./Resources/Save.png"/>
                 </Button>
+                <Separator/>
                 <Label Content="Font size:"/>
                 <ComboBox x:Name="comboFontSize" Width="50" IsEditable="True"
                           DropDownClosed="ComboFontSize_DropDownClosed" KeyUp="ComboFontSize_KeyUp"
@@ -83,12 +90,26 @@
                     <ComboBoxItem Content="56"/>
                     <ComboBoxItem Content="72"/>
                 </ComboBox>
+                <Separator/>
+                <ComboBox x:Name="syntaxComboBox" Width="100" DropDownClosed="SyntaxComboBox_OnDropDownClosed">
+                    <ComboBoxItem Content="Text" IsSelected="True"/>
+                    <ComboBoxItem Content="C#"/>
+                    <ComboBoxItem Content="C++"/>
+                    <ComboBoxItem Content="HTML"/>
+                    <ComboBoxItem Content="Java"/>
+                    <ComboBoxItem Content="Javascript"/>
+                    <ComboBoxItem Content="PHP"/>
+                    <ComboBoxItem Content="Visual Basic"/>
+                    <ComboBoxItem Content="XML"/>
+                </ComboBox>
             </ToolBar>
         </ToolBarTray>
 
-        <TextBox x:Name="txtBoxDoc" AcceptsReturn="True" TextWrapping="NoWrap"
-                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                 TextChanged="TxtBoxDoc_TextChanged" FontFamily="Consolas">
-        </TextBox>
+        <avalonedit:TextEditor xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+            Name="TxtBoxDoc" FontFamily="Consolas" FontSize="10pt" DockPanel.Dock="Bottom"
+                               VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                               TextChanged="TxtBoxDoc_TextChanged" ShowLineNumbers="True">
+
+        </avalonedit:TextEditor>
     </DockPanel>
 </Window>
