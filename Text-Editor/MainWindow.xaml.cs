@@ -1,22 +1,12 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using ICSharpCode.AvalonEdit.Highlighting;
-using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using ICSharpCode.AvalonEdit.Search;
 
 namespace Text_Editor
 {
@@ -25,8 +15,8 @@ namespace Text_Editor
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool hasTextChanged = false;
-        string fileName = "";
+        bool _hasTextChanged = false;
+        string _fileName = "";
 
         public MainWindow()
         {
@@ -34,37 +24,36 @@ namespace Text_Editor
             TxtBoxDoc.FontSize = 14;
         }
 
-        private void CloseWithoutSaving_Prompt()
+        private void SaveBeforeClosing_Prompt()
         {
-            if (hasTextChanged)
+            if (_hasTextChanged)
             {
                 MessageBoxResult messageBoxResult = MessageBox.Show("Do you want to save before closing?", "Closing", MessageBoxButton.YesNoCancel);
 
-                if (messageBoxResult == MessageBoxResult.Yes)
+                switch (messageBoxResult)
                 {
-                    SaveFile();
-                }
-
-                else if (messageBoxResult == MessageBoxResult.Cancel)
-                {
-                    return;
+                    case MessageBoxResult.Yes:
+                        SaveFile();
+                        break;
+                    case MessageBoxResult.Cancel:
+                        return;
                 }
             }
 
             TxtBoxDoc.Clear();
-            hasTextChanged = false;
+            _hasTextChanged = false;
         }
 
         private void MenuNew_Click(object sender, RoutedEventArgs e)
         {
-            CloseWithoutSaving_Prompt();
+            SaveBeforeClosing_Prompt();
             this.Title = "Text editor";
-            fileName = "";
+            _fileName = "";
         }
 
         private void MenuOpen_Click(object sender, RoutedEventArgs e)
         {
-            CloseWithoutSaving_Prompt();
+            SaveBeforeClosing_Prompt();
 
             OpenFileDialog openDlg = new OpenFileDialog
             {
@@ -72,8 +61,8 @@ namespace Text_Editor
                 Filter = "Text file (*.txt)|*.txt|All files|", // Da filtrira tipove podataka
 
                 // Pocetni direktorij
-                InitialDirectory = File.Exists(fileName) ?
-                    fileName.Remove(fileName.LastIndexOf('\\')) :
+                InitialDirectory = File.Exists(_fileName) ?
+                    _fileName.Remove(_fileName.LastIndexOf('\\')) :
                     Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
             };
 
@@ -82,31 +71,31 @@ namespace Text_Editor
                 TxtBoxDoc.Text = File.ReadAllText(openDlg.FileName);
             }
 
-            fileName = openDlg.FileName;
-            this.Title = "Text editor - " + fileName.Substring(fileName.LastIndexOf('\\') + 1);
+            _fileName = openDlg.FileName;
+            this.Title = "Text editor - " + _fileName.Substring(_fileName.LastIndexOf('\\') + 1);
         }
 
         private void MenuSave_Click(object sender, RoutedEventArgs e)
         {
             SaveFile();
-            hasTextChanged = false;
+            _hasTextChanged = false;
 
-            this.Title = "Text editor - " + fileName.Substring(fileName.LastIndexOf('\\') + 1);
+            this.Title = "Text editor - " + _fileName.Substring(_fileName.LastIndexOf('\\') + 1);
         }
 
         private void MenuSaveAs_Click(object sender, RoutedEventArgs e)
         {
             SaveFile(true);
-            hasTextChanged = false;
+            _hasTextChanged = false;
 
-            this.Title = "Text editor - " + fileName.Substring(fileName.LastIndexOf('\\') + 1);
+            this.Title = "Text editor - " + _fileName.Substring(_fileName.LastIndexOf('\\') + 1);
         }
 
         private void SaveFile(bool saveAs = false)
         {
-            if (File.Exists(fileName) && !saveAs)
+            if (File.Exists(_fileName) && !saveAs)
             {
-                File.WriteAllText(fileName, TxtBoxDoc.Text);
+                File.WriteAllText(_fileName, TxtBoxDoc.Text);
                 return;
             }
 
@@ -117,7 +106,7 @@ namespace Text_Editor
                 File.WriteAllText(saveDlg.FileName, TxtBoxDoc.Text);
             }
 
-            fileName = saveDlg.FileName;
+            _fileName = saveDlg.FileName;
         }
 
         private SaveFileDialog ReturnSaveDialog()
@@ -128,21 +117,21 @@ namespace Text_Editor
                 Filter = "Text file (*.txt)|*.txt|All files|", // Da filtrira tipove podataka
 
                 // Postavimo početni folder (prvi slučaj za Save As, drugi za ostalo)
-                InitialDirectory = File.Exists(fileName) ?
-                    fileName.Remove(fileName.LastIndexOf('\\')) :
+                InitialDirectory = File.Exists(_fileName) ?
+                    _fileName.Remove(_fileName.LastIndexOf('\\')) :
                     Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
 
                 // Postavimo ovo ako je All Files i nema ekstenzije napisane
                 DefaultExt = "txt",
                 AddExtension = true,
-                FileName = fileName.LastIndexOf('\\') != -1 ? fileName.Substring(fileName.LastIndexOf('\\') + 1) : fileName
+                FileName = _fileName.LastIndexOf('\\') != -1 ? _fileName.Substring(_fileName.LastIndexOf('\\') + 1) : _fileName
             };
             return saveDlg;
         }
 
         private void TxtBoxDoc_TextChanged(object sender, EventArgs e)
         {
-            hasTextChanged = true;
+            _hasTextChanged = true;
             if (this.Title[this.Title.Length - 1] != '*')
                 this.Title += '*';
         }
@@ -184,14 +173,16 @@ namespace Text_Editor
                 }
 
                 catch (Exception)
-                { }
+                {
+                    // ignored
+                }
             }
         }
 
         private void SyntaxComboBox_OnDropDownClosed(object sender, EventArgs e)
         {
-            ComboBox comboBox = sender as ComboBox;
-            ChangeSyntax(comboBox.Text);
+            if (sender is ComboBox comboBox)
+                ChangeSyntax(comboBox.Text);
         }
 
         private void ChangeSyntax(string syntax)
@@ -205,6 +196,47 @@ namespace Text_Editor
         {
             TxtBoxDoc.ShowLineNumbers = !TxtBoxDoc.ShowLineNumbers;
             menuLineNumbers.IsChecked = TxtBoxDoc.ShowLineNumbers;
+            Properties.Settings.Default.LineNumbers = TxtBoxDoc.ShowLineNumbers;
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            SaveBeforeClosing_Prompt();
+
+            if (_hasTextChanged)
+                e.Cancel = true;
+
+            Properties.Settings.Default.Save();
+        }
+
+        private void MenuTodayDate_OnClick(object sender, RoutedEventArgs e)
+        {
+            TxtBoxDoc.Text += DateTime.Now;
+        }
+
+        private void MenuFind_Click(object sender, RoutedEventArgs e)
+        {
+            SearchPanel.Install(TxtBoxDoc);
+        }
+
+        private void Replace_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            FindReplaceDialog.ShowForReplace(TxtBoxDoc);
+        }
+
+        private void Replace_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void Find_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            FindReplaceDialog.ShowForFind(TxtBoxDoc);
+        }
+
+        private void Find_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
         }
     }
 }

@@ -4,9 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Text_Editor"
+        xmlns:properties="clr-namespace:Text_Editor"
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
-        Title="Text editor" Height="350" Width="525">
+        Title="Text editor" Height="350" Width="525" Closing="MainWindow_OnClosing">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Replace" Executed="Replace_Executed"
+                        CanExecute="Replace_CanExecute" />
+        <CommandBinding Command="ApplicationCommands.Find" Executed="Find_Executed"
+                        CanExecute="Find_CanExecute" />
+
+    </Window.CommandBindings>
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -33,8 +41,8 @@
                           Command="ApplicationCommands.Redo">
                 </MenuItem>
                 <Separator/>
-                <MenuItem x:Name="menuFind" Header="Find" InputGestureText="Ctrl+F"
-                          Command="ApplicationCommands.Find">
+                <MenuItem x:Name="menuFind" Header="_Find" InputGestureText="Ctrl+F"
+                          Command="ApplicationCommands.Find" Click="MenuFind_Click">
                 </MenuItem>
                 <MenuItem x:Name="menuReplace" Header="Replace" InputGestureText="Ctrl+H"
                           Command="ApplicationCommands.Replace">
@@ -49,10 +57,17 @@
                 <MenuItem x:Name="menuPaste" Header="Paste" InputGestureText="Ctrl+V"
                           Command="ApplicationCommands.Paste">
                 </MenuItem>
+                <Separator/>
+                <MenuItem x:Name="menuTodayDate" Header="Timestamp"
+                          Click="MenuTodayDate_OnClick">
+                </MenuItem>
+                <MenuItem x:Name="menuSelectAll" Header="Select _All" InputGestureText="Ctrl+A"
+                          Command="ApplicationCommands.SelectAll">
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="View">
                 <MenuItem x:Name="menuLineNumbers" Header="Show Line Numbers"
-                          Click="MenuLineNumbers_OnClick" IsChecked="True">
+                          Click="MenuLineNumbers_OnClick">
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_Help">
