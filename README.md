@@ -4,7 +4,7 @@ A simple text editor made in C# and WPF and using AvalonEdit for more complex fe
 Features:
 * Syntax highlighting
 * Line numbering
-* Font size setting
+* Font size
 
 What I practiced with this:
 * Logic of new, save and open operations
@@ -13,4 +13,5 @@ What I practiced with this:
 * Containers (menu, toolbars, comboBoxes...)
 * NuGet
 * ApplicationCommands and Default Windows locations
+* Application Settings
 * XAML and C# in general
