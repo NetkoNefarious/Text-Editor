@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Text_Editor"
-        xmlns:properties="clr-namespace:Text_Editor"
+        xmlns:p="clr-namespace:Text_Editor.Properties"
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
         Title="Text editor" Height="350" Width="525" Closing="MainWindow_OnClosing">
@@ -13,7 +13,6 @@
                         CanExecute="Replace_CanExecute" />
         <CommandBinding Command="ApplicationCommands.Find" Executed="Find_Executed"
                         CanExecute="Find_CanExecute" />
-
     </Window.CommandBindings>
 
     <DockPanel>
@@ -67,7 +66,12 @@
             </MenuItem>
             <MenuItem Header="View">
                 <MenuItem x:Name="menuLineNumbers" Header="Show Line Numbers"
-                          Click="MenuLineNumbers_OnClick">
+                          Click="MenuLineNumbers_OnClick" IsChecked="{Binding Source={x:Static p:Settings.Default},
+                    Path=LineNumbers, Mode=TwoWay}">
+                </MenuItem>
+                <MenuItem x:Name="menuNightMode" Header="Night mode"
+                          IsChecked="{Binding Source={x:Static p:Settings.Default},
+                    Path=NightMode, Mode=TwoWay}" Click="MenuNightMode_OnClick">
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_Help">
@@ -123,7 +127,9 @@
         <avalonedit:TextEditor xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
             Name="TxtBoxDoc" FontFamily="Consolas" FontSize="10pt" DockPanel.Dock="Bottom"
                                VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                               TextChanged="TxtBoxDoc_TextChanged" ShowLineNumbers="True">
+                               TextChanged="TxtBoxDoc_TextChanged"
+                               ShowLineNumbers="{Binding Source={x:Static p:Settings.Default},
+            Path=LineNumbers, Mode=TwoWay}">
 
         </avalonedit:TextEditor>
     </DockPanel>

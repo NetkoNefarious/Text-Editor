@@ -1,12 +1,14 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.ComponentModel;
+using System.Configuration;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
+using Text_Editor.Properties;
 
 namespace Text_Editor
 {
@@ -15,8 +17,8 @@ namespace Text_Editor
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool _hasTextChanged = false;
-        string _fileName = "";
+        private bool _hasTextChanged = false;
+        private string _fileName = "";
 
         public MainWindow()
         {
@@ -237,6 +239,11 @@ namespace Text_Editor
         private void Find_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
+        }
+
+        private void MenuNightMode_OnClick(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.NightMode = !Properties.Settings.Default.NightMode;
         }
     }
 }

@@ -25,13 +25,25 @@ namespace Text_Editor.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool LineNumbers {
             get {
                 return ((bool)(this["LineNumbers"]));
             }
             set {
                 this["LineNumbers"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NightMode {
+            get {
+                return ((bool)(this["NightMode"]));
+            }
+            set {
+                this["NightMode"] = value;
             }
         }
     }
