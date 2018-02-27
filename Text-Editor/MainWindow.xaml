@@ -4,8 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Text_Editor"
+        xmlns:p="clr-namespace:Text_Editor.Properties"
+        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
-        Title="Text editor - Untitled.txt" Height="350" Width="525">
+        Title="Text editor" Height="350" Width="525" Closing="MainWindow_OnClosing">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Replace" Executed="Replace_Executed"
+                        CanExecute="Replace_CanExecute" />
+        <CommandBinding Command="ApplicationCommands.Find" Executed="Find_Executed"
+                        CanExecute="Find_CanExecute" />
+    </Window.CommandBindings>
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -19,11 +27,26 @@
                 <MenuItem x:Name="menuSave" Header="_Save" InputGestureText="Ctrl+S"
                           Click="MenuSave_Click">
                 </MenuItem>
+                <MenuItem x:Name="menuSaveAs" Header="Save as" Click="MenuSaveAs_Click"/>
                 <MenuItem x:Name="menuExit" Header="Exit" InputGestureText="Alt+F4"
                           Click="MenuExit_Click">
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_Edit">
+                <MenuItem x:Name="menuUndo" Header="Undo" InputGestureText="Ctrl+Z"
+                          Command="ApplicationCommands.Undo">
+                </MenuItem>
+                <MenuItem x:Name="menuRedo" Header="Redo" InputGestureText="Ctrl+Y"
+                          Command="ApplicationCommands.Redo">
+                </MenuItem>
+                <Separator/>
+                <MenuItem x:Name="menuFind" Header="_Find" InputGestureText="Ctrl+F"
+                          Command="ApplicationCommands.Find" Click="MenuFind_Click">
+                </MenuItem>
+                <MenuItem x:Name="menuReplace" Header="Replace" InputGestureText="Ctrl+H"
+                          Command="ApplicationCommands.Replace">
+                </MenuItem>
+                <Separator/>
                 <MenuItem x:Name="menuCut" Header="Cut" InputGestureText="Ctrl+X"
                           Command="ApplicationCommands.Cut">
                 </MenuItem>
@@ -33,9 +56,28 @@
                 <MenuItem x:Name="menuPaste" Header="Paste" InputGestureText="Ctrl+V"
                           Command="ApplicationCommands.Paste">
                 </MenuItem>
+                <Separator/>
+                <MenuItem x:Name="menuTodayDate" Header="Timestamp"
+                          Click="MenuTodayDate_OnClick">
+                </MenuItem>
+                <MenuItem x:Name="menuSelectAll" Header="Select _All" InputGestureText="Ctrl+A"
+                          Command="ApplicationCommands.SelectAll">
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem x:Name="menuLineNumbers" Header="Show Line Numbers"
+                          Click="MenuLineNumbers_OnClick" IsChecked="{Binding Source={x:Static p:Settings.Default},
+                    Path=LineNumbers, Mode=TwoWay}">
+                </MenuItem>
+                <MenuItem x:Name="menuNightMode" Header="Night mode"
+                          IsChecked="{Binding Source={x:Static p:Settings.Default},
+                    Path=NightMode, Mode=TwoWay}" Click="MenuNightMode_OnClick">
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_Help">
-
+                <MenuItem x:Name="menuAbout" Header="About" InputGestureText="F1"
+                          Click="MenuAbout_Click">
+                </MenuItem>
             </MenuItem>
         </Menu>
 
@@ -50,12 +92,45 @@
                 <Button ToolTip="Save" Click="MenuSave_Click">
                     <Image Source="./Resources/Save.png"/>
                 </Button>
+                <Separator/>
+                <Label Content="Font size:"/>
+                <ComboBox x:Name="comboFontSize" Width="50" IsEditable="True"
+                          DropDownClosed="ComboFontSize_DropDownClosed" KeyUp="ComboFontSize_KeyUp"
+                          Text="14">
+                    <ComboBoxItem Content="10"/>
+                    <ComboBoxItem Content="12"/>
+                    <ComboBoxItem Content="14"/>
+                    <ComboBoxItem Content="16"/>
+                    <ComboBoxItem Content="18"/>
+                    <ComboBoxItem Content="20"/>
+                    <ComboBoxItem Content="24"/>
+                    <ComboBoxItem Content="32"/>
+                    <ComboBoxItem Content="48"/>
+                    <ComboBoxItem Content="56"/>
+                    <ComboBoxItem Content="72"/>
+                </ComboBox>
+                <Separator/>
+                <ComboBox x:Name="syntaxComboBox" Width="100" DropDownClosed="SyntaxComboBox_OnDropDownClosed">
+                    <ComboBoxItem Content="Text" IsSelected="True"/>
+                    <ComboBoxItem Content="C#"/>
+                    <ComboBoxItem Content="C++"/>
+                    <ComboBoxItem Content="HTML"/>
+                    <ComboBoxItem Content="Java"/>
+                    <ComboBoxItem Content="Javascript"/>
+                    <ComboBoxItem Content="PHP"/>
+                    <ComboBoxItem Content="Visual Basic"/>
+                    <ComboBoxItem Content="XML"/>
+                </ComboBox>
             </ToolBar>
         </ToolBarTray>
 
-        <TextBox x:Name="txtBoxDoc" AcceptsReturn="True" TextWrapping="NoWrap"
-                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                 TextChanged="TxtBoxDoc_TextChanged">
-        </TextBox>
+        <avalonedit:TextEditor xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+            Name="TxtBoxDoc" FontFamily="Consolas" FontSize="10pt" DockPanel.Dock="Bottom"
+                               VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                               TextChanged="TxtBoxDoc_TextChanged"
+                               ShowLineNumbers="{Binding Source={x:Static p:Settings.Default},
+            Path=LineNumbers, Mode=TwoWay}">
+
+        </avalonedit:TextEditor>
     </DockPanel>
 </Window>
