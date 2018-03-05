@@ -19,6 +19,9 @@ namespace Text_Editor
     {
         private bool _hasTextChanged = false;
         private string _fileName = "";
+        private string _dialogFileTypes = "Text file (*.txt)|*.txt|All files|*.*|C# file (*.cs)|*.cs|C++ file (*.cpp)|*.cpp|" +
+                "HTML file (*.html, *.htm)|*.html;*.htm|Java file (*.java)|*.java|Javascript file (*.js)|*.js|" +
+                "Visual Basic file (*.vb)|*.vb|XML file (*.xml)|*.xml|PHP file (*.php)|*.php";
 
         public MainWindow()
         {
@@ -37,7 +40,10 @@ namespace Text_Editor
                     case MessageBoxResult.Yes:
                         SaveFile();
                         break;
-                    case MessageBoxResult.Cancel:
+                    case MessageBoxResult.No:
+                        NewFile();
+                        break;
+                    default:
                         return;
                 }
             }
@@ -49,18 +55,80 @@ namespace Text_Editor
         private void MenuNew_Click(object sender, RoutedEventArgs e)
         {
             SaveBeforeClosing_Prompt();
+            NewFile();
+        }
+
+        private void NewFile()
+        {
             this.Title = "Text editor";
             _fileName = "";
+            _hasTextChanged = false;
         }
 
         private void MenuOpen_Click(object sender, RoutedEventArgs e)
         {
             SaveBeforeClosing_Prompt();
 
+            OpenFile();
+        }
+
+        private void DetectSyntaxAndChange()
+        {
+            string fileType;
+            byte indexfileType;
+
+            // Change syntax upon detecting file name
+            switch (_fileName.Substring(_fileName.LastIndexOf('.') + 1))
+            {
+                case ("cs"):
+                    fileType = "C#";
+                    indexfileType = 1;
+                    break;
+                case ("cpp"):
+                    fileType = "C++";
+                    indexfileType = 2;
+                    break;
+                case ("html"):
+                case ("htm"):
+                    fileType = "HTML";
+                    indexfileType = 3;
+                    break;
+                case ("java"):
+                    fileType = "Java";
+                    indexfileType = 4;
+                    break;
+                case ("js"):
+                    fileType = "Javascript";
+                    indexfileType = 5;
+                    break;
+                case ("php"):
+                    fileType = "PHP";
+                    indexfileType = 6;
+                    break;
+                case ("vb"):
+                    fileType = "Visual Basic";
+                    indexfileType = 7;
+                    break;
+                case ("xml"):
+                    fileType = "XML";
+                    indexfileType = 8;
+                    break;
+                default:
+                    fileType = "Text";
+                    indexfileType = 0;
+                    break;
+            }
+
+            ChangeSyntax(fileType);
+            syntaxComboBox.SelectedIndex = indexfileType;
+        }
+
+        private void OpenFile()
+        {
             OpenFileDialog openDlg = new OpenFileDialog
             {
                 // Postavke dijaloga
-                Filter = "Text file (*.txt)|*.txt|All files|", // Da filtrira tipove podataka
+                Filter = _dialogFileTypes, // Da filtrira tipove podataka
 
                 // Pocetni direktorij
                 InitialDirectory = File.Exists(_fileName) ?
@@ -71,26 +139,21 @@ namespace Text_Editor
             if (openDlg.ShowDialog() == true)
             {
                 TxtBoxDoc.Text = File.ReadAllText(openDlg.FileName);
+                _fileName = openDlg.FileName;
+                this.Title = "Text editor - " + _fileName.Substring(_fileName.LastIndexOf('\\') + 1);
+                DetectSyntaxAndChange();
+                _hasTextChanged = false;
             }
-
-            _fileName = openDlg.FileName;
-            this.Title = "Text editor - " + _fileName.Substring(_fileName.LastIndexOf('\\') + 1);
         }
 
         private void MenuSave_Click(object sender, RoutedEventArgs e)
         {
             SaveFile();
-            _hasTextChanged = false;
-
-            this.Title = "Text editor - " + _fileName.Substring(_fileName.LastIndexOf('\\') + 1);
         }
 
         private void MenuSaveAs_Click(object sender, RoutedEventArgs e)
         {
             SaveFile(true);
-            _hasTextChanged = false;
-
-            this.Title = "Text editor - " + _fileName.Substring(_fileName.LastIndexOf('\\') + 1);
         }
 
         private void SaveFile(bool saveAs = false)
@@ -106,9 +169,11 @@ namespace Text_Editor
             if (saveDlg.ShowDialog() == true)
             {
                 File.WriteAllText(saveDlg.FileName, TxtBoxDoc.Text);
+                _fileName = saveDlg.FileName;
+                this.Title = "Text editor - " + _fileName.Substring(_fileName.LastIndexOf('\\') + 1);
+                _hasTextChanged = false;
+                DetectSyntaxAndChange();
             }
-
-            _fileName = saveDlg.FileName;
         }
 
         private SaveFileDialog ReturnSaveDialog()
@@ -116,7 +181,7 @@ namespace Text_Editor
             SaveFileDialog saveDlg = new SaveFileDialog
             {
                 // Postavke dijaloga
-                Filter = "Text file (*.txt)|*.txt|All files|", // Da filtrira tipove podataka
+                Filter = _dialogFileTypes, // Da filtrira tipove podataka
 
                 // Postavimo početni folder (prvi slučaj za Save As, drugi za ostalo)
                 InitialDirectory = File.Exists(_fileName) ?
