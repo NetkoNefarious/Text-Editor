@@ -146,6 +146,15 @@ namespace Text_Editor
             }
         }
 
+        public void OpenFile(string filePath)
+        {
+            TxtBoxDoc.Text = File.ReadAllText(filePath);
+            _fileName = filePath;
+            this.Title = "Text editor - " + _fileName.Substring(_fileName.LastIndexOf('\\') + 1);
+            DetectSyntaxAndChange();
+            _hasTextChanged = false;
+        }
+
         private void MenuSave_Click(object sender, RoutedEventArgs e)
         {
             SaveFile();
